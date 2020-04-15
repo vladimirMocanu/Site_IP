@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>login V7</title>
+    <title>SignUp</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!--===============================================================================================-->
-    <link
+    <!-- <link
       rel="icon"
       type="image/png"
       href="Login_SignUP_Source/images/icons/favicon.ico"
-    />
+    /> -->
     <!--===============================================================================================-->
     <link
       rel="stylesheet"
@@ -74,7 +74,7 @@
   <body>
     <div class="limiter">
       <div class="container-login100">
-        <div class="wrap-login100 p-t-0 p-b-30">
+        <div class="wrap-login100 p-t-141 p-b-10">
           <form class="login100-form validate-form">
             <span class="login100-form-title p-b-40">
               Sign Up
@@ -97,7 +97,7 @@
                 Or with email
               </span>
             </div>
-
+            <!-- email + validate -->
             <div
               class="wrap-input100 validate-input m-b-16"
               data-validate="Please enter email: ex@abc.xyz"
@@ -110,7 +110,7 @@
               />
               <span class="focus-input100"></span>
             </div>
-
+            <!-- Password + validate -->
             <div
               class="wrap-input100 validate-input m-b-20"
               data-validate="Please enter password"
@@ -126,7 +126,7 @@
               />
               <span class="focus-input100"></span>
             </div>
-
+            <!-- Confirm password +validate + password match -->
             <div
               class="wrap-input100 validate-input m-b-20"
               data-validate="Please enter password"
@@ -142,12 +142,21 @@
               />
               <span class="focus-input100"></span>
             </div>
-
+            <!-- Sign up button -->
             <div class="container-login100-form-btn p-t-15">
               <button class="login100-form-btn">
                 Sign Up
               </button>
             </div>
+            <!-- Back to login if you have an account -->
+            <div class="flex-col-c p-t-100">
+              <span class="txt2 p-b-10">
+                You have an account?
+              </span>
+
+              <li><a href="login.html">Login</a></li>
+            </div>
+
           </form>
         </div>
       </div>
@@ -171,5 +180,3 @@
     <script src="Login_SignUP_Source/js/main.js"></script>
   </body>
 </html>
-
-
