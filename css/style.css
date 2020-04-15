@@ -85,7 +85,7 @@ h1, h2, h3, h4, h5, h6, figure {
     .colorlib-nav {
       margin: 0; } }
   .colorlib-nav .top-menu {
-    padding: 40px 30px; }
+    padding: 20px 30px; }
     @media screen and (max-width: 768px) {
       .colorlib-nav .top-menu {
         padding: 28px 1em; } }
@@ -203,8 +203,9 @@ h1, h2, h3, h4, h5, h6, figure {
 
 #colorlib-counter,
 .colorlib-bg {
+  background-color: #000000;
   background-size: cover;
-  background-position: top center;
+  background-position: top;
   background-repeat: no-repeat;
   position: relative; }
 
