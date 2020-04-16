@@ -62,7 +62,7 @@
 	<div class="limiter">
 		<div class="container-login100">
 			<div class="wrap-login100 p-t-50 p-b-10">
-				<form class="login100-form validate-form">
+				<form class="login100-form validate-form" action="" method="POST">
 					<span class="login100-form-title p-b-40">
 						Sign Up
 					</span>
@@ -88,7 +88,7 @@
 
 					<div class="wrap-input100 validate-input m-b-16"
 						data-validate="Please enter email: ex@abc.xyz">
-						<input class="input100" type="text" name="email" placeholder="Email" />
+						<input class="input100" type="text" id="email" name="email" placeholder="Email" />
 						<!-- <span class="focus-input100"></span> -->
 					</div>
 					<!-- Password + validate -->
@@ -97,7 +97,7 @@
 						<span class="btn-show-pass">
 							<i class="fa fa fa-eye"></i>
 						</span>
-						<input class="input100" type="password" name="pass"
+						<input class="input100" type="password" id="pass" name="pass"
 							placeholder="Password" />
 						<span class="focus-input100"></span>
 					</div>
@@ -107,7 +107,7 @@
 						<span class="btn-show-pass">
 							<i class="fa fa fa-eye"></i>
 						</span>
-						<input class="input100" type="password" name="pass"
+						<input class="input100" type="password" id="confpass" name="confpass"
 							placeholder="Confirm password" />
 						<span class="focus-input100"></span>
 					</div>
@@ -122,7 +122,7 @@
 						<span class="txt2 p-b-10">
 							You have an account?
 						</span>
-						<button onclick="document.location = 'login'">Login</button>
+						<button onclick="document.location = '/login'">Login</button>
 					</div>
 				</form>
 			</div>
