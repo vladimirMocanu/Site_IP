@@ -7,9 +7,6 @@ var con = mysql.createConnection({
 	database: "mydb"
 });
 
-
-
-
 con.connect(function (err) {
 	if (err) throw err;
 	console.log("Connected!");
