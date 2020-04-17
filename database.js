@@ -18,6 +18,8 @@ con.connect(function (err) {
 	insertUser('w@w.com', 'w')
 });
 
+
+
 function insertUser(email, pass) {
 	con.query("INSERT INTO user (email, pass) VALUES ?", [[[email, pass]]], function (err, result) {
 		if (err) throw err;
