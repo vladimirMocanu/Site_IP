@@ -1,114 +1,128 @@
 const express = require('express')
+const bcrypt = require('bcrypt')
+const passport = require('passport')
+const flash = require('express-flash')
+const session = require('express-session')
+const methodOverride = require('method-override')
+
 const database = require('./database')
+const initializePassport = require('./passport-config')
 
-var app = express()
+const app = express()
 
-var logged_in = false
+initializePassport(
+	passport,
+	email => database.getUserByEmail(email)
+)
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/public'))
 app.use(express.urlencoded({ extended: false }))
+app.use(flash())
+app.use(session({
+	secret: 'secret',
+	resave: false,
+	saveUninitialized: false
+}))
+app.use(passport.initialize())
+app.use(passport.session())
+app.use(methodOverride('_method'))
 
-app.engine('html', require('ejs').renderFile);
-app.set('view engine', 'html');
+app.engine('html', require('ejs').renderFile)
+app.set('view engine', 'html')
 
 app.get('/', (req, res) => {
 	res.render('index.html')
 })
 
 app.get('/header', function (req, res) {
-	res.render('header.html');
-});
+	res.render('header.html')
+})
 
 app.get('/subscribe', function (req, res) {
-	res.render('subscribe.html');
-});
+	res.render('subscribe.html')
+})
 
 app.get('/footer', function (req, res) {
-	res.render('footer.html');
-});
+	res.render('footer.html')
+})
 
-app.get('/login', function (req, res) {
-	res.render('login.html');
-});
+app.get('/login', checkNotAuthenticated, function (req, res) {
+	res.render('login.html')
+})
 
-app.get('/signup', function (req, res) {
-	res.render('signup.html');
-});
+app.get('/signup', checkNotAuthenticated, function (req, res) {
+	res.render('signup.html')
+})
 
 app.get('/about', function (req, res) {
-	res.render('about.html');
-});
+	res.render('about.html')
+})
 
 app.get('/contact', function (req, res) {
-	res.render('contact.html');
-});
+	res.render('contact.html')
+})
 
 app.get('/hotels', function (req, res) {
-	res.render('hotels.html');
-});
+	res.render('hotels.html')
+})
 
 app.get('/hotel', function (req, res) {
-	res.render('hotel.html');
-});
+	res.render('hotel.html')
+})
 
 app.get('/hotelpage', function (req, res) {
-	res.render('hotelpage.html');
-});
+	res.render('hotelpage.html')
+})
 
 app.get('/room', function (req, res) {
-	res.render('room.html');
-});
+	res.render('room.html')
+})
 
-app.get('/list_property', function (req, res) {
-	if (logged_in) {
-		res.render('list_property.html');
-	} else {
-		res.redirect('/login');
+app.get('/list_property', checkAuthenticated, function (req, res) {
+	res.render('list_property.html')
+})
+
+app.get('/booknow', checkAuthenticated, function (req, res) {
+	console.log('TODO')
+})
+
+app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
+	successRedirect: '/',
+	failureRedirect: '/login',
+	failureFlash: true
+}))
+
+app.post('/signup', checkNotAuthenticated, async (req, res) => {
+	try {
+		const hashedPassword = await bcrypt.hash(req.body.pass, 10)
+		let email = req.body.email
+		let user = await database.getUserByEmail(email)
+
+		if (user == null) {
+			database.insertUser(req.body.email, hashedPassword)
+			res.redirect('/login')
+		} else {
+			res.redirect('/signup')
+		}
+	} catch (e) {
+		res.redirect('/signup')
 	}
-});
+})
 
-app.get('/booknow', function (req, res) {
-	if (logged_in) {
-		console.log('it was a scam! thank you for the money');
-		res.redirect('/');
-	} else {
-		res.redirect('/login');
-	}
-});
-
-app.post('/login', function (req, res) {
-	console.log(req.headers.referer);
-	if(logged_in === false) {
-		database.hasUser(req.body.email, function(result) {
-			if (result.length != 0 && result[0].pass === req.body.pass) {
-				logged_in = true;
-
-			} else {
-				res.redirect('/login');
-			}
-		});
-	} else {
-		res.redirect('/login');
-	}
-});
-
-app.post('/signup', function (req, res) { 
-	if( req.body.pass === req.body.confpass) {
-		database.hasUser(req.body.email, function(result){
-			if (result.length == 0) {
-				database.insertUser(req.body.email, req.body.pass);
-				res.redirect('/');
-			} else {
-				res.redirect('/signup');
-			}
-		});
-		
-
-	} else {
-		res.redirect('/signup');
+function checkAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) {
+		return next()
 	}
 
-	
-});
+	res.redirect('/login')
+}
+
+function checkNotAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) {
+		return res.redirect('/')
+	}
+
+	next()
+}
 
 app.listen(3000)
