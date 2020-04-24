@@ -5,14 +5,16 @@ const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
 
-const database = require('./database')
+const userDB = require('./users-database')
+const hotelDB = require('./hotels-database')
+
 const initializePassport = require('./passport-config')
 
 const app = express()
 
 initializePassport(
 	passport,
-	email => database.getUserByEmail(email)
+	email => userDB.getUserByEmail(email)
 )
 
 app.use(express.static(__dirname + '/public'))
@@ -31,55 +33,61 @@ app.engine('html', require('ejs').renderFile)
 app.set('view engine', 'html')
 
 app.get('/', (req, res) => {
-	res.render('index.html')
+	res.render('index')
 })
 
 app.get('/header', function (req, res) {
-	res.render('header.html')
+	res.render('header')
 })
 
 app.get('/subscribe', function (req, res) {
-	res.render('subscribe.html')
+	res.render('subscribe')
 })
 
 app.get('/footer', function (req, res) {
-	res.render('footer.html')
+	res.render('footer')
 })
 
 app.get('/login', checkNotAuthenticated, function (req, res) {
-	res.render('login.html')
+	res.render('login')
 })
 
 app.get('/signup', checkNotAuthenticated, function (req, res) {
-	res.render('signup.html')
+	res.render('signup')
 })
 
 app.get('/about', function (req, res) {
-	res.render('about.html')
+	res.render('about')
 })
 
 app.get('/contact', function (req, res) {
-	res.render('contact.html')
+	res.render('contact')
 })
 
-app.get('/hotels', function (req, res) {
-	res.render('hotels.html')
+app.get('/hotels', async function (req, res) {
+	res.render('hotels')
 })
 
-app.get('/hotel', function (req, res) {
-	res.render('hotel.html')
+app.get('/hotelsdb', async function (req, res) {
+	const result = await hotelDB.all()
+	res.json(result)
 })
 
 app.get('/hotelpage', function (req, res) {
-	res.render('hotelpage.html')
+	res.render('hotelpage')
+	console.log('TODO')
 })
 
 app.get('/room', function (req, res) {
-	res.render('room.html')
+	res.render('room')
+	/**
+	 * cred ca room.html o sa aiba aceiasi soarta ca hotel.html
+	 * trebuie transformata in printf-uri in cod
+	 */
 })
 
 app.get('/list_property', checkAuthenticated, function (req, res) {
-	res.render('list_property.html')
+	res.render('list_property')
 })
 
 app.get('/booknow', checkAuthenticated, function (req, res) {
@@ -95,11 +103,11 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
 app.post('/signup', checkNotAuthenticated, async (req, res) => {
 	try {
 		const hashedPassword = await bcrypt.hash(req.body.pass, 10)
-		let email = req.body.email
-		let user = await database.getUserByEmail(email)
+		const email = req.body.email
+		const user = await userDB.getUserByEmail(email)
 
 		if (user == null) {
-			database.insertUser(req.body.email, hashedPassword)
+			userDB.insertUser(req.body.email, hashedPassword)
 			res.redirect('/login')
 		} else {
 			res.redirect('/signup')
@@ -108,6 +116,26 @@ app.post('/signup', checkNotAuthenticated, async (req, res) => {
 		res.redirect('/signup')
 	}
 })
+
+app.post('/list_property', checkAuthenticated, async function (req, res) {
+	try {
+		const hotel_name = req.body.hotel_name
+		const location = req.body.location
+		const description = req.body.description
+		const user = await userDB.getUserByEmail(req.session.passport.user)
+		const userID = user.id
+
+		hotelDB.insertHotel(userID, hotel_name, location, description)
+		res.redirect('/')
+	} catch (e) {
+		res.redirect('/signup')
+	}
+})
+
+app.get('/rows', async function (req, res) {
+	res.json(await hotelDB.all())
+})
+
 
 function checkAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) {

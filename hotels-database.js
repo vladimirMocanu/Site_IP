@@ -1,0 +1,50 @@
+const mysql = require('mysql')
+
+const pool = mysql.createPool({
+	connectionLimit: 10,
+	host: "localhost",
+	user: "mjpm",
+	password: "penis",
+	database: "mydb",
+	port: "3306"
+})
+
+let hotelsDB = {}
+
+hotelsDB.createTable = () => {
+	pool.query("CREATE TABLE hotel(id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, owner INT(6) UNSIGNED, name VARCHAR(60), location VARCHAR(60), description VARCHAR(300))", (err, result) => {
+		if (err) throw err;
+		console.log("Table hotel created");
+	});
+}
+
+hotelsDB.deleteTable = () => {
+	pool.query("DROP TABLE hotel", function (err, result) {
+		if (err) throw err;
+	});
+}
+
+hotelsDB.all = () => {
+	return new Promise((resolve, reject) => {
+		pool.query('SELECT * FROM hotel', (err, result) => {
+			if (err) {
+				return reject(err)
+			}
+
+			return resolve(result)
+		})
+	})
+}
+
+hotelsDB.insertHotel = (owner, name, location, description) => {
+	pool.query("INSERT INTO hotel (owner, name, location, description) VALUES ?", [[[owner, name, location, description]]], (err, result) => {
+		if (err) {
+			return 1
+		}
+
+		return 0
+	})
+}
+
+
+module.exports = hotelsDB

@@ -49,14 +49,12 @@ usersDB.getUser = (email) => {
 
 
 usersDB.insertUser = (email, password) => {
-	return new Promise((resolve, reject) => {
-		pool.query("INSERT INTO user (email, password) VALUES ?", [[[email, password]]], (err, result) => {
-			if (err) {
-				return reject(err)
-			}
+	pool.query("INSERT INTO user (email, password) VALUES ?", [[[email, password]]], (err, result) => {
+		if (err) {
+			return 1
+		}
 
-			return resolve(result)
-		})
+		return 0
 	})
 }
 
