@@ -7,6 +7,7 @@ const methodOverride = require('method-override')
 
 const userDB = require('./users-database')
 const hotelDB = require('./hotels-database')
+const roomDB = require('./room-database')
 
 const initializePassport = require('./passport-config')
 
@@ -38,6 +39,18 @@ app.get('/', (req, res) => {
 
 app.get('/header', function (req, res) {
 	res.render('header')
+})
+
+app.get('/index_reservation', function (req, res) {
+	res.render('index_reservation')
+})
+
+app.get('/hotels_reservation', function (req, res) {
+	res.render('hotels_reservation')
+})
+
+app.get('/popular_destinations', function (req, res) {
+	res.render('popular_destinations')
 })
 
 app.get('/subscribe', function (req, res) {
@@ -75,7 +88,11 @@ app.get('/hotelsdb', async function (req, res) {
 
 app.get('/hotelpage', function (req, res) {
 	res.render('hotelpage')
-	console.log('TODO')
+})
+
+app.get('/roomsdb', async function (req, res) {
+	const result = await roomDB.all(req.query.id)
+	res.json(result)
 })
 
 app.get('/room', function (req, res) {
@@ -122,10 +139,41 @@ app.post('/list_property', checkAuthenticated, async function (req, res) {
 		const hotel_name = req.body.hotel_name
 		const location = req.body.location
 		const description = req.body.description
+		const roomCount = req.body.roomCount; //TODO
+
+		/**Trebuie adaugat un buton sau un drop down din care sa alegi
+		 * cate camere sa ai si sa apara sub hotel chenare cu id-uri de
+		 * genu room_name1 in functie de roomCount
+		 */
+
+		var room_names = []
+		var room_prices = []
+		var room_descriptions = []
+
+		if (roomCount >= 1) {
+			room_names = [req.body.room_name1]
+			room_prices = [req.body.room_price1]
+			room_descriptions = [req.body.room_description1]
+		}
+		if (roomCount >= 2) {
+			room_names = [req.body.room_name2]
+			room_prices = [req.body.room_price2]
+			room_descriptions = [req.body.room_description2]
+		}
+
 		const user = await userDB.getUserByEmail(req.session.passport.user)
 		const userID = user.id
 
-		hotelDB.insertHotel(userID, hotel_name, location, description)
+		hotelDB.insertHotel(userID, hotel_name, location, description,
+			(hotelID) => {
+				for (var i = 0; i < roomCount; i++) {
+					const room_name = room_names[i]
+					const room_price = room_price[i]
+					const room_description = room_descriptions[i]
+					roomDB.insertRoom(hotelID, room_name, room_price, room_description)
+				}
+			})
+
 		res.redirect('/')
 	} catch (e) {
 		res.redirect('/signup')

@@ -38,10 +38,9 @@
 	<script>
 		$(document).ready(function () {
 			$("#header").load("/header");
+			$("#reservation").load("/hotels_reservation");
 			$("#subscribe").load("/subscribe");
 			$("#footer").load("/footer");
-			$("#room1").load("/room");
-			$("#room2").load("/room");
 		});
 	</script>
 </head>
@@ -80,478 +79,59 @@
 						<div class="row">
 							<div class="col-md-12">
 								<div class="wrap-division">
-									<div
-										class="col-md-12 col-md-offset-0 heading2 animate-box">
-										<h2>Hotel Edison</h2>
+									<div id="hotelName" class="col-md-12 col-md-offset-0 heading2 animate-box">
 									</div>
-									<div class="row">
-										<div id="room1"></div>
-										<div id="room2"></div>
-									</div>
+									<div class="row" id="roomContainer"></div>
+
+									<script>
+										const urlParams = new URLSearchParams(window.location.search);
+										const hotelID = urlParams.get('id');
+										const hotelName = urlParams.get('hotelName');
+
+										var ajax = new XMLHttpRequest();
+										ajax.open("GET", "/roomsdb?id=" + hotelID, true);
+										ajax.send();
+		
+										ajax.onreadystatechange = function () {
+											if (this.readyState == 4 && this.status == 200) {
+												var data = JSON.parse(this.responseText);
+
+												document.getElementById("hotelName").innerHTML += "<h2>" + hotelName + "</h2>";
+		
+												for (var a = 0; a < data.length; a++) {
+													var roomName = data[a].name;
+													var price = data[a].price;
+													var description = data[a].description;
+													var html = "";
+		
+													html += "<div id=\"room\">";
+													html += "<div class=\"col-md-12 animate-box\">";
+													html += "<div class=\"room-wrap\">";
+													html += "<div class=\"row\">";
+													html += "<div class=\"col-md-6 col-sm-6\">";
+													html += "<div class=\"room-img\" style=\"background-image: url(images/room-1.jpg);\"></div>"
+													html += "</div>";
+													html += "<div class=\"col-md-6 col-sm-6\">";
+													html += "<div class=\"desc\">";
+													html += "<h2>" + roomName + "</h2>";
+													html += "<p class=" + price + "><span>$45</span><small>/night</small></p>";
+													html += "<p>" + description + "</p>";
+													html += "<form action=\"/booknow\" method=\"GET\"><button class=\"btn btn-primary\">BookNow!</button></form>"
+													html += "</div>";
+													html += "</div>";
+													html += "</div>";
+
+													document.getElementById("hotelContainer").innerHTML += html;
+												}
+											}
+										}
+									</script>
 								</div>
 							</div>
 						</div>
 					</div>
 
-					<!-- SIDEBAR-->
-					<div class="col-md-3">
-						<div class="sidebar-wrap">
-							<div class="side search-wrap animate-box">
-								<h3 class="sidebar-heading">Find your hotel</h3>
-								<form method="post" class="colorlib-form">
-									<div class="row">
-										<div class="col-md-12">
-											<div class="form-group">
-												<label
-													for="date">Check-in:</label>
-												<div class="form-field">
-													<i
-														class="icon icon-calendar2"></i>
-													<input type="text"
-														id="date"
-														class="form-control date"
-														placeholder="Check-in date">
-												</div>
-											</div>
-										</div>
-										<div class="col-md-12">
-											<div class="form-group">
-												<label
-													for="date">Check-out:</label>
-												<div class="form-field">
-													<i
-														class="icon icon-calendar2"></i>
-													<input type="text"
-														id="date"
-														class="form-control date"
-														placeholder="Check-out date">
-												</div>
-											</div>
-										</div>
-										<div class="col-md-12">
-											<div class="form-group">
-												<label
-													for="guests">Guest</label>
-												<div class="form-field">
-													<i
-														class="icon icon-arrow-down3"></i>
-													<select name="people"
-														id="people"
-														class="form-control">
-														<option
-															value="#">
-															1
-														</option>
-														<option
-															value="#">
-															2
-														</option>
-														<option
-															value="#">
-															3
-														</option>
-														<option
-															value="#">
-															4
-														</option>
-														<option
-															value="#">
-															5+
-														</option>
-													</select>
-												</div>
-											</div>
-										</div>
-										<div class="col-md-12">
-											<input type="submit"
-												name="submit"
-												id="submit"
-												value="Find Hotel"
-												class="btn btn-primary btn-block">
-										</div>
-									</div>
-								</form>
-							</div>
-							<div class="side animate-box">
-								<div class="row">
-									<div class="col-md-12">
-										<h3 class="sidebar-heading">Price Range
-										</h3>
-										<form method="post"
-											class="colorlib-form-2">
-											<div class="row">
-												<div class="col-md-6">
-													<div
-														class="form-group">
-														<label
-															for="guests">Price
-															from:</label>
-														<div
-															class="form-field">
-															<i
-																class="icon icon-arrow-down3"></i>
-															<select name="people"
-																id="people"
-																class="form-control">
-																<option
-																	value="#">
-																	1
-																</option>
-																<option
-																	value="#">
-																	200
-																</option>
-																<option
-																	value="#">
-																	300
-																</option>
-																<option
-																	value="#">
-																	400
-																</option>
-																<option
-																	value="#">
-																	1000
-																</option>
-															</select>
-														</div>
-													</div>
-												</div>
-												<div class="col-md-6">
-													<div
-														class="form-group">
-														<label
-															for="guests">Price
-															to:</label>
-														<div
-															class="form-field">
-															<i
-																class="icon icon-arrow-down3"></i>
-															<select name="people"
-																id="people"
-																class="form-control">
-																<option
-																	value="#">
-																	2000
-																</option>
-																<option
-																	value="#">
-																	4000
-																</option>
-																<option
-																	value="#">
-																	6000
-																</option>
-																<option
-																	value="#">
-																	8000
-																</option>
-																<option
-																	value="#">
-																	10000
-																</option>
-															</select>
-														</div>
-													</div>
-												</div>
-											</div>
-										</form>
-									</div>
-								</div>
-							</div>
-							<div class="side animate-box">
-								<div class="row">
-									<div class="col-md-12">
-										<h3 class="sidebar-heading">Review
-											Rating</h3>
-										<form method="post"
-											class="colorlib-form-2">
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<p class="rate">
-														<span><i class="icon-star-full"></i><i
-																class="icon-star-full"></i><i
-																class="icon-star-full"></i><i
-																class="icon-star-full"></i><i
-																class="icon-star-full"></i></span>
-													</p>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<p class="rate">
-														<span><i class="icon-star-full"></i><i
-																class="icon-star-full"></i><i
-																class="icon-star-full"></i><i
-																class="icon-star-full"></i></span>
-													</p>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<p class="rate">
-														<span><i class="icon-star-full"></i><i
-																class="icon-star-full"></i><i
-																class="icon-star-full"></i></span>
-													</p>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<p class="rate">
-														<span><i class="icon-star-full"></i><i
-																class="icon-star-full"></i></span>
-													</p>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<p class="rate">
-														<span><i
-																class="icon-star-full"></i></span>
-													</p>
-												</label>
-											</div>
-										</form>
-									</div>
-								</div>
-							</div>
-							<div class="side animate-box">
-								<div class="row">
-									<div class="col-md-12">
-										<h3 class="sidebar-heading">Categories
-										</h3>
-										<form method="post"
-											class="colorlib-form-2">
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Apartment
-													</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Hotel
-													</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Hostel
-													</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Inn</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Villa
-													</h4>
-												</label>
-											</div>
-										</form>
-									</div>
-								</div>
-							</div>
-							<div class="side animate-box">
-								<div class="row">
-									<div class="col-md-12">
-										<h3 class="sidebar-heading">Location
-										</h3>
-										<form method="post"
-											class="colorlib-form-2">
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Greece
-													</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Italy
-													</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Spain
-													</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Germany
-													</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Japan
-													</h4>
-												</label>
-											</div>
-										</form>
-									</div>
-								</div>
-							</div>
-							<div class="side animate-box">
-								<div class="row">
-									<div class="col-md-12">
-										<h3 class="sidebar-heading">Facilities
-										</h3>
-										<form method="post"
-											class="colorlib-form-2">
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Airport
-														Transfer
-													</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Resto
-														Bar</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Restaurant
-													</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Swimming
-														Pool
-													</h4>
-												</label>
-											</div>
-											<div class="form-check">
-												<input type="checkbox"
-													class="form-check-input"
-													id="exampleCheck1">
-												<label class="form-check-label"
-													for="exampleCheck1">
-													<h4
-														class="place">
-														Japan
-													</h4>
-												</label>
-											</div>
-										</form>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
+					<div id="reservation"></div>
 				</div>
 			</div>
 		</div>
