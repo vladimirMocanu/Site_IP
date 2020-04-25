@@ -139,27 +139,19 @@ app.post('/list_property', checkAuthenticated, async function (req, res) {
 		const hotel_name = req.body.hotel_name
 		const location = req.body.location
 		const description = req.body.description
-		const roomCount = req.body.roomCount; //TODO
 
 		/**Trebuie adaugat un buton sau un drop down din care sa alegi
-		 * cate camere sa ai si sa apara sub hotel chenare cu id-uri de
-		 * genu room_name1 in functie de roomCount
+		 * cate camere sa ai si sa apara sub hotel chenare cu name de genu
+		 * (roomNames, roomPrices, roomDescriptions)xN
+		 * la final cand se apasa pe bunon trebuie facuta o cerere post
+		 * catre /list_property?roomCount=N&roomName=x&roomPrice=y&roomDescription=z&roomName=x&roomPrice=y&roomDescription=z...
 		 */
-
-		var room_names = []
-		var room_prices = []
-		var room_descriptions = []
-
-		if (roomCount >= 1) {
-			room_names = [req.body.room_name1]
-			room_prices = [req.body.room_price1]
-			room_descriptions = [req.body.room_description1]
-		}
-		if (roomCount >= 2) {
-			room_names = [req.body.room_name2]
-			room_prices = [req.body.room_price2]
-			room_descriptions = [req.body.room_description2]
-		}
+		const urlParams = new URLSearchParams(window.location.search)
+		const roomCount = urlParams.get('roomCount')
+		
+		const room_names = urlParams.getAll('roomName')
+		const room_prices = urlParams.getAll('roomPrice')
+		const room_descriptions = urlParams.getAll('roomDescription')
 
 		const user = await userDB.getUserByEmail(req.session.passport.user)
 		const userID = user.id
@@ -168,7 +160,7 @@ app.post('/list_property', checkAuthenticated, async function (req, res) {
 			(hotelID) => {
 				for (var i = 0; i < roomCount; i++) {
 					const room_name = room_names[i]
-					const room_price = room_price[i]
+					const room_price = room_prices[i]
 					const room_description = room_descriptions[i]
 					roomDB.insertRoom(hotelID, room_name, room_price, room_description)
 				}
