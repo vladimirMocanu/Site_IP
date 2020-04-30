@@ -132,8 +132,6 @@ app.post('/list_property', checkAuthenticated, async function (req, res) {
 		const location = req.body.location
 		const description = req.body.description
 
-		var roomCount = 0
-
 		const room_names = req.body.roomName
 		const room_prices = req.body.roomPrice
 		const room_descriptions = req.body.roomDescription
@@ -141,21 +139,28 @@ app.post('/list_property', checkAuthenticated, async function (req, res) {
 		const user = await userDB.getUserByEmail(req.session.passport.user)
 		const userID = user.id
 
-		roomCount = room_names.length
 		if (room_names.length != room_prices.length || room_descriptions.length != room_prices.length) {
-			roomCount = 1
+			hotelDB.insertHotel(userID, hotel_name, location, description,
+				(hotelID) => {
+						const room_name = room_names
+						const room_price = room_prices
+						const room_description = room_descriptions
+						roomDB.insertRoom(hotelID, room_name, room_price, room_description)
+				})
+		} else {
+			hotelDB.insertHotel(userID, hotel_name, location, description,
+				(hotelID) => {
+					for (var i = 0; i < room_names.length; i++) {
+						const room_name = room_names[i]
+						const room_price = room_prices[i]
+						const room_description = room_descriptions[i]
+						console.log(room_name)
+						roomDB.insertRoom(hotelID, room_name, room_price, room_description)
+					}
+				})
 		}
 
-		hotelDB.insertHotel(userID, hotel_name, location, description,
-			(hotelID) => {
-				for (var i = 0; i < roomCount; i++) {
-					const room_name = room_names[i]
-					const room_price = room_prices[i]
-					const room_description = room_descriptions[i]
-					console.log(room_name)
-					roomDB.insertRoom(hotelID, room_name, room_price, room_description)
-				}
-			})
+
 
 		res.redirect('/')
 	} catch (e) {
