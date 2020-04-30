@@ -95,14 +95,6 @@ app.get('/roomsdb', async function (req, res) {
 	res.json(result)
 })
 
-app.get('/room', function (req, res) {
-	res.render('room')
-	/**
-	 * cred ca room.html o sa aiba aceiasi soarta ca hotel.html
-	 * trebuie transformata in printf-uri in cod
-	 */
-})
-
 app.get('/list_property', checkAuthenticated, function (req, res) {
 	res.render('list_property')
 })
@@ -140,28 +132,20 @@ app.post('/list_property', checkAuthenticated, async function (req, res) {
 		const location = req.body.location
 		const description = req.body.description
 
-		/**Trebuie adaugat un buton sau un drop down din care sa alegi
-		 * cate camere sa ai si sa apara sub hotel chenare cu name de genu
-		 * (roomNames, roomPrices, roomDescriptions)xN
-		 * la final cand se apasa pe bunon trebuie facuta o cerere post
-		 * catre /list_property?roomCount=N&roomName=x&roomPrice=y&roomDescription=z&roomName=x&roomPrice=y&roomDescription=z...
-		 */
-		const urlParams = new URLSearchParams(window.location.search)
-		const roomCount = urlParams.get('roomCount')
-		
-		const room_names = urlParams.getAll('roomName')
-		const room_prices = urlParams.getAll('roomPrice')
-		const room_descriptions = urlParams.getAll('roomDescription')
+		const room_names = req.body.roomName
+		const room_prices = req.body.roomPrice
+		const room_descriptions = req.body.roomDescription
 
 		const user = await userDB.getUserByEmail(req.session.passport.user)
 		const userID = user.id
 
 		hotelDB.insertHotel(userID, hotel_name, location, description,
 			(hotelID) => {
-				for (var i = 0; i < roomCount; i++) {
+				for (var i = 0; i < room_names.length; i++) {
 					const room_name = room_names[i]
 					const room_price = room_prices[i]
 					const room_description = room_descriptions[i]
+					console.log(room_name)
 					roomDB.insertRoom(hotelID, room_name, room_price, room_description)
 				}
 			})
