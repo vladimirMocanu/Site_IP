@@ -8,6 +8,7 @@ const methodOverride = require('method-override')
 const userDB = require('./users-database')
 const hotelDB = require('./hotels-database')
 const roomDB = require('./room-database')
+const reservationDB = require('./reservation-database')
 
 const initializePassport = require('./passport-config')
 
@@ -103,6 +104,20 @@ app.get('/booknow', checkAuthenticated, function (req, res) {
 	console.log('TODO')
 })
 
+app.post('/booknow', checkAuthenticated, async (req, res) => {
+	try {
+		const user = await userDB.getUserByEmail(req.session.passport.user)
+		const userId = user.id
+		const roomId = req.query.id
+
+		reservationDB.insertReservation(userId, roomId)
+
+		res.redirect('/')
+	} catch (e) {
+		res.redirect('/login')
+	}
+})
+
 app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
 	successRedirect: '/',
 	failureRedirect: '/login',
@@ -154,7 +169,6 @@ app.post('/list_property', checkAuthenticated, async function (req, res) {
 						const room_name = room_names[i]
 						const room_price = room_prices[i]
 						const room_description = room_descriptions[i]
-						console.log(room_name)
 						roomDB.insertRoom(hotelID, room_name, room_price, room_description)
 					}
 				})

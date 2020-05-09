@@ -99,6 +99,7 @@
 												document.getElementById("hotelName").innerHTML += "<h2>" + hotelName + "</h2>";
 		
 												for (var a = 0; a < data.length; a++) {
+													var roomId = data[a].id;
 													var roomName = data[a].name;
 													var price = data[a].price;
 													var description = data[a].description;
@@ -116,7 +117,7 @@
 													html += "<h2>" + roomName + "</h2>";
 													html += "<p class=\"price\"><span>$" + price +"</span><small>/night</small></p>";
 													html += "<p>" + description + "</p>";
-													html += "<form action=\"/booknow\" method=\"GET\"><button class=\"btn btn-primary\">BookNow!</button></form>"
+													html += "<form action=\"/booknow?id=" + roomId + "\" method=\"POST\"><button class=\"btn btn-primary\">BookNow!</button></form>"
 													html += "</div>";
 													html += "</div>";
 													html += "</div>";
