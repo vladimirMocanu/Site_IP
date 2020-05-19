@@ -111,6 +111,7 @@ app.post('/booknow', checkAuthenticated, async (req, res) => {
 		const roomId = req.query.id
 
 		reservationDB.insertReservation(userId, roomId)
+		console.log(userId + " " + roomId)
 
 		res.redirect('/')
 	} catch (e) {
