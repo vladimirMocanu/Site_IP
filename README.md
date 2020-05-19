@@ -13,3 +13,6 @@ Proiect pentru IP
 - npm
 - mysql database
 
+# Note
+- baza de date folosita se numeste mjpm si nu are parola
+- conexiunea se realizeaza la `localhost:3306`
