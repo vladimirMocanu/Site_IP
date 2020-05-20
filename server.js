@@ -139,7 +139,7 @@ app.post('/signup', checkNotAuthenticated, async (req, res) => {
 		const email = req.body.email
 		const user = await userDB.getUserByEmail(email)
 
-		if (user == null) {
+		if (user == null && req.body.pass == req.body.confpass) {
 			userDB.insertUser(req.body.email, hashedPassword)
 			res.redirect('/login')
 		} else {
