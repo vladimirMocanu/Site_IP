@@ -66,7 +66,7 @@ app.get('/footer', function (req, res) {
 	res.render('footer')
 })
 
-app.get('/login', checkNotAuthenticated, function (req, res) {
+app.get('/login', checkNotAuthenticatedAndLogout, function (req, res) {
 	res.render('login')
 })
 
@@ -127,7 +127,7 @@ app.post('/booknow', checkAuthenticated, async (req, res) => {
 	}
 })
 
-app.post('/login', checkNotAuthenticatedAndLogout, passport.authenticate('local', {
+app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
 	successRedirect: '/',
 	failureRedirect: '/login',
 	failureFlash: true
@@ -215,7 +215,7 @@ function checkNotAuthenticated(req, res, next) {
 function checkNotAuthenticatedAndLogout(req, res, next) {
 	if (req.isAuthenticated()) {
 		req.logout();
-		return res.redirect('/login')
+		return res.redirect('/')
 	}
 
 	next()
