@@ -212,4 +212,13 @@ function checkNotAuthenticated(req, res, next) {
 	next()
 }
 
+function checkNotAuthenticatedAndLogout(req, res, next) {
+	if (req.isAuthenticated()) {
+		req.logout();
+		return res.redirect('/')
+	}
+
+	next()
+}
+
 app.listen(3000)
