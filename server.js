@@ -215,7 +215,7 @@ function checkNotAuthenticated(req, res, next) {
 function checkNotAuthenticatedAndLogout(req, res, next) {
 	if (req.isAuthenticated()) {
 		req.logout();
-		return res.redirect('/')
+		return res.redirect('/login')
 	}
 
 	next()
