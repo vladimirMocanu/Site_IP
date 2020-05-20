@@ -127,7 +127,7 @@ app.post('/booknow', checkAuthenticated, async (req, res) => {
 	}
 })
 
-app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
+app.post('/login', checkNotAuthenticatedAndLogout, passport.authenticate('local', {
 	successRedirect: '/',
 	failureRedirect: '/login',
 	failureFlash: true
