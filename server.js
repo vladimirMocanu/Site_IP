@@ -38,6 +38,10 @@ app.get('/', (req, res) => {
 	res.render('index')
 })
 
+app.post('/', (req, res) => {
+	res.redirect('hotels')
+})
+
 app.get('/header', function (req, res) {
 	res.render('header')
 })
@@ -80,6 +84,10 @@ app.get('/contact', function (req, res) {
 
 app.get('/hotels', async function (req, res) {
 	res.render('hotels')
+})
+
+app.post('/hotels', async function (req, res) {
+	res.redirect('hotels')
 })
 
 app.get('/hotelsdb', async function (req, res) {
