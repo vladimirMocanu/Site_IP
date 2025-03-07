@@ -4,6 +4,7 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
+const rateLimit = require('express-rate-limit')
 
 const userDB = require('./users-database')
 const hotelDB = require('./hotels-database')
@@ -18,6 +19,13 @@ initializePassport(
 	passport,
 	email => userDB.getUserByEmail(email)
 )
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100 // limit each IP to 100 requests per windowMs
+})
+
+app.use(limiter)
 
 app.use(express.static(__dirname + '/public'))
 app.use(express.urlencoded({ extended: false }))
@@ -127,7 +135,13 @@ app.post('/booknow', checkAuthenticated, async (req, res) => {
 	}
 })
 
-app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
+const loginLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 5, // limit each IP to 5 login requests per windowMs
+	message: "Too many login attempts from this IP, please try again after 15 minutes"
+})
+
+app.post('/login', loginLimiter, checkNotAuthenticated, passport.authenticate('local', {
 	successRedirect: '/',
 	failureRedirect: '/login',
 	failureFlash: true
