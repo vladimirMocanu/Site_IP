@@ -4,6 +4,7 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
+const rateLimit = require('express-rate-limit')
 
 const userDB = require('./users-database')
 const hotelDB = require('./hotels-database')
@@ -12,12 +13,18 @@ const reservationDB = require('./reservation-database')
 
 const initializePassport = require('./passport-config')
 
+
 const app = express()
 
 initializePassport(
 	passport,
 	email => userDB.getUserByEmail(email)
 )
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100 // limit each IP to 100 requests per windowMs
+})
 
 app.use(express.static(__dirname + '/public'))
 app.use(express.urlencoded({ extended: false }))
@@ -82,15 +89,15 @@ app.get('/contact', function (req, res) {
 	res.render('contact')
 })
 
-app.get('/hotels', async function (req, res) {
+app.get('/hotels', limiter, async function (req, res) {
 	res.render('hotels')
 })
 
-app.post('/hotels', async function (req, res) {
+app.post('/hotels', limiter, async function (req, res) {
 	res.redirect('hotels')
 })
 
-app.get('/hotelsdb', async function (req, res) {
+app.get('/hotelsdb', limiter, async function (req, res) {
 	const result = await hotelDB.all()
 	res.json(result)
 })
@@ -99,7 +106,7 @@ app.get('/hotelpage', function (req, res) {
 	res.render('hotelpage')
 })
 
-app.get('/roomsdb', async function (req, res) {
+app.get('/roomsdb', limiter, async function (req, res) {
 	const result = await roomDB.all(req.query.id)
 	res.json(result)
 })
@@ -127,13 +134,13 @@ app.post('/booknow', checkAuthenticated, async (req, res) => {
 	}
 })
 
-app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
+app.post('/login', limiter, checkNotAuthenticated, passport.authenticate('local', {
 	successRedirect: '/',
 	failureRedirect: '/login',
 	failureFlash: true
 }))
 
-app.post('/signup', checkNotAuthenticated, async (req, res) => {
+app.post('/signup', limiter, checkNotAuthenticated, async (req, res) => {
 	try {
 		const hashedPassword = await bcrypt.hash(req.body.pass, 10)
 		const email = req.body.email
