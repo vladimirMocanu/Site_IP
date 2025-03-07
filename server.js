@@ -14,7 +14,6 @@ const reservationDB = require('./reservation-database')
 const initializePassport = require('./passport-config')
 
 
-const test = "wrong"
 const app = express()
 
 initializePassport(
