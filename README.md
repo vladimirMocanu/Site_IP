@@ -1,22 +1,74 @@
-# Site_IP
-Proiect pentru IP
+# MJPM Booking Platform
 
-# Utilizare:
-- Pornire server `npm run devStart`
-- Adresa paginii locala este `192.168.83.130:3000`
+A hotel booking platform project for IP course.
 
-# Cerinte sistem
-- Windows 7 32bit Service Pack 1
+## Setup Instructions
 
-# Programe necesare pe masina virtuala
-- python
+### Requirements
+- Node.js (v12+)
+- MySQL Server (v5.7+)
 - npm
-- mysql database
 
-# Note
-- baza de date folosita se numeste mjpm si nu are parola
-- conexiunea se realizeaza la `localhost:3306`
+### Database Setup
+1. Make sure MySQL is running on port 3306
+2. Create a database user with:
+   - username: `root`
+   - password: `secret`
+   
+### Installation
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Initialize the database:
+   ```
+   npm run db:init
+   ```
+4. (Optional) Seed the database with sample data:
+   ```
+   npm run db:seed
+   ```
 
-# Testare
-- Pentru verificarea site-ului trebuie sa aveti instalat Hamachi si sa faceti parte din camera 'SITE IP', parola '1234', apoi conectarea se realizeaza la ipv4 al masinii 'Apollo' port 3000.
+### Running the Application
+- For development with auto-reload:
+  ```
+  npm run dev
+  ```
+- For production:
+  ```
+  npm start
+  ```
+
+The application will be available at: http://localhost:3000
+
+### Sample Login Credentials (after db:seed)
+- Admin: admin@example.com / admin123
+- User: user@example.com / user123
+- Hotel Owner: hotel@example.com / hotel123
+
+## Features
+- User authentication (login/signup)
+- Hotel listing and management
+- Room booking system
+- Responsive design for all devices
+
+## Project Structure
+- `/scripts` - Database initialization and seeding scripts
+- `/public` - Static assets (CSS, JavaScript, images)
+- `/views` - HTML templates
+- Root directory - Server configuration and database modules
+
+## Development Commands
+- `npm run dev` - Start server with auto-reload
+- `npm start` - Start server normally
+- `npm run db:init` - Initialize database schema
+- `npm run db:seed` - Populate database with sample data
+- `npm run db:reset` - Reset and reseed database (combines init and seed)
+
+## Authors
+- Mocanu
+- Jercan
+- Posta
+- Marcu
 

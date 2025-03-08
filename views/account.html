@@ -1,0 +1,198 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>MJPM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="author" content="" />
+
+    <meta property="og:title" content="" />
+    <meta property="og:image" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:site_name" content="" />
+    <meta property="og:description" content="" />
+    <meta name="twitter:title" content="" />
+    <meta name="twitter:image" content="" />
+    <meta name="twitter:url" content="" />
+    <meta name="twitter:card" content="" />
+
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:300,400,500,700" rel="stylesheet">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/icomoon.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/magnific-popup.css">
+    <link rel="stylesheet" href="css/flexslider.css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css">
+    <link rel="stylesheet" href="css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="js/modernizr-2.6.2.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#header").load("/header");
+            $("#subscribe").load("/subscribe");
+            $("#footer").load("/footer");
+        });
+    </script>
+</head>
+<body>
+  
+  <aside id="colorlib-hero">
+    <div class="flexslider">
+      <ul class="slides">
+        <li style="background-image: url(images/account-banner.jpg);">
+          <!-- Dacă lipsește, asigură-te că "account-banner.jpg" este în public/images -->
+          <div class="overlay"></div>
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-6 col-md-offset-3 col-sm-12 col-xs-12 slider-text">
+                <div class="slider-text-inner text-center">
+                  <h1>Your Account</h1>
+                  <p>Welcome, <%= user.email %>!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </aside>
+  
+  <div class="colorlib-wrap">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <!-- Navigare Taburi -->
+          <ul class="nav nav-tabs" id="accountTabs" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" data-toggle="tab" href="#properties" role="tab">Proprietăți</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="tab" href="#reservations" role="tab">Rezervări</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="tab" href="#favorites" role="tab">Favorite</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="tab" href="#profile" role="tab">Profil</a>
+            </li>
+          </ul>
+          
+          <!-- Conținutul secțiunilor -->
+          <div class="tab-content" id="accountContent">
+            <!-- Proprietăți -->
+            <div class="tab-pane fade show active" id="properties" role="tabpanel">
+              <% if (hotels.length > 0) { %>
+              <div class="row">
+                <% hotels.forEach(function(hotel){ %>
+                <div class="col-md-4">
+                  <div class="hotel-entry animate-box">
+                    <a href="hotelpage?id=<%= hotel.id %>&hotelName=<%= encodeURIComponent(hotel.name) %>" 
+                       class="hotel-img" style="background-image: url(images/hotel-1.jpg);"></a>
+                    <div class="desc">
+                      <h3><a href="hotelpage?id=<%= hotel.id %>&hotelName=<%= encodeURIComponent(hotel.name) %>">
+                        <%= hotel.name %></a></h3>
+                      <span class="location"><%= hotel.location %></span>
+                      <p><%= hotel.description %></p>
+                    </div>
+                  </div>
+                </div>
+                <% }); %>
+              </div>
+              <% } else { %>
+              <p>No properties found.</p>
+              <% } %>
+            </div>
+
+            <!-- Rezervări -->
+            <div class="tab-pane fade" id="reservations" role="tabpanel">
+              <% if (reservations.length > 0) { %>
+              <div class="row">
+                <% reservations.forEach(function(r){ %>
+                <div class="col-md-4">
+                  <div class="card">
+                    <img class="card-img-top" src="images/room-1.jpg" alt="<%= r.roomName %>">
+                    <div class="card-body">
+                      <h5 class="card-title"><%= r.hotelName %> - <%= r.roomName %></h5>
+                      <p class="card-text">
+                        <strong>Check-In:</strong> <%= new Date(r.check_in).toLocaleDateString() %><br>
+                        <strong>Check-Out:</strong> <%= new Date(r.check_out).toLocaleDateString() %>
+                      </p>
+                      <form action="/cancelReservation" method="POST">
+                        <input type="hidden" name="reservationId" value="<%= r.id %>">
+                        <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <% }); %>
+              </div>
+              <% } else { %>
+              <p>No reservations found.</p>
+              <% } %>
+            </div>
+
+            <!-- Favorite -->
+            <div class="tab-pane fade" id="favorites" role="tabpanel">
+              <% if (favorites && favorites.length > 0) { %>
+              <div class="row">
+                <% favorites.forEach(function(fav){ %>
+                <div class="col-md-4">
+                  <div class="hotel-entry animate-box">
+                    <a href="hotelpage?id=<%= fav.id %>&hotelName=<%= encodeURIComponent(fav.name) %>" 
+                       class="hotel-img" style="background-image: url(images/hotel-1.jpg);"></a>
+                    <div class="desc">
+                      <h3><%= fav.name %></h3>
+                      <span class="location"><%= fav.location %></span>
+                      <p><%= fav.description %></p>
+                    </div>
+                  </div>
+                </div>
+                <% }); %>
+              </div>
+              <% } else { %>
+              <p>You have not added any favorites yet.</p>
+              <% } %>
+            </div>
+
+            <!-- Profil -->
+            <div class="tab-pane fade" id="profile" role="tabpanel">
+              <div class="profile-detailed">
+                <h3>Profil</h3>
+                <p><strong>Email:</strong> <%= user.email %></p>
+                <a href="/messages" class="btn btn-info">Accesează Mesagerie</a>
+                <hr>
+                <h4>Actualizează Parola</h4>
+                <form action="/updatePassword" method="POST">
+                  <div class="form-group">
+                    <label for="newPassword">Parolă nouă</label>
+                    <input type="password" name="newPassword" id="newPassword" class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="confirmPassword">Confirmare parolă</label>
+                    <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" required>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Actualizează Parola</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.waypoints.min.js"></script>
+  <script src="js/main.js"></script>
+  
+</body>
+</html>

@@ -1,16 +1,21 @@
 {
-  "name": "site_mjpm",
+  "name": "mjpm-booking",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "MJPM Booking site for IP project",
+  "main": "server.js",
   "scripts": {
-    "devStart": "nodemon server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "db:init": "node scripts/db-init.js",
+    "db:seed": "node scripts/db-seed.js",
+    "db:reset": "node scripts/db-reset.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.0",
     "bootstrap-sass": "^3.4.1",
+    "csurf": "^1.10.0",
     "ejs": "^3.0.2",
     "express": "^4.21.2",
     "express-flash": "0.0.2",

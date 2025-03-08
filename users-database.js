@@ -1,73 +1,67 @@
-const mysql = require('mysql')
-
-const pool = mysql.createPool({
-	connectionLimit: 10,
-	host: "localhost",
-	user: "root",
-	password: "",
-	database: "mjpm",
-	port: "3306"
-})
+const { pool, query } = require('./db-config')
 
 let usersDB = {}
 
-usersDB.createTable = () => {
-	pool.query("CREATE TABLE user(id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, email VARCHAR(60), password VARCHAR(60))", (err, result) => {
-		if (err) throw err;
-		console.log("Table created");
-	});
+usersDB.createTable = async () => {
+  try {
+    await query("CREATE TABLE IF NOT EXISTS user(id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, email VARCHAR(60), password VARCHAR(60))");
+    console.log("User table created or already exists");
+    return true;
+  } catch (err) {
+    console.error("Error creating user table:", err);
+    throw err;
+  }
 }
 
-usersDB.deleteTable = () => {
-	pool.query("DROP TABLE user", function (err, result) {
-		if (err) throw err;
-	});
+usersDB.deleteTable = async () => {
+  try {
+    await query("DROP TABLE IF EXISTS user");
+    return true;
+  } catch (err) {
+    console.error("Error dropping user table:", err);
+    throw err;
+  }
 }
 
-usersDB.all = () => {
-	return new Promise((resolve, reject) => {
-		pool.query('SELECT * FROM user', (err, result) => {
-			if (err) {
-				return reject(err)
-			}
-
-			return resolve(result)
-		})
-	})
+usersDB.all = async () => {
+  try {
+    return await query('SELECT * FROM user');
+  } catch (err) {
+    console.error("Error getting all users:", err);
+    throw err;
+  }
 }
 
-usersDB.getUser = (email) => {
-	return new Promise((resolve, reject) => {
-		pool.query('SELECT * FROM user WHERE email = ?', [email], (err, result) => {
-			if (err) {
-				return reject(err)
-			}
-			return resolve(result)
-		})
-	})
+usersDB.getUser = async (email) => {
+  try {
+    return await query('SELECT * FROM user WHERE email = ?', [email]);
+  } catch (err) {
+    console.error(`Error getting user with email ${email}:`, err);
+    throw err;
+  }
 }
 
-
-usersDB.insertUser = (email, password) => {
-	pool.query("INSERT INTO user (email, password) VALUES ?", [[[email, password]]], (err, result) => {
-		if (err) {
-			return 1
-		}
-
-		return 0
-	})
+usersDB.insertUser = async (email, password) => {
+  try {
+    await query("INSERT INTO user (email, password) VALUES ?", [[[email, password]]]);
+    return true;
+  } catch (err) {
+    console.error(`Error inserting user ${email}:`, err);
+    return false;
+  }
 }
 
 usersDB.getUserByEmail = async (email) => {
-	try {
-		let results = await usersDB.getUser(email)
-		
-		if (results.length == 0) return null
+  try {
+    const results = await usersDB.getUser(email);
+    
+    if (results.length == 0) return null;
 
-		return ({id: results[0].id, email: results[0].email, password: results[0].password})
-	} catch(e) {
-		console.log(e)
-	}
+    return ({id: results[0].id, email: results[0].email, password: results[0].password});
+  } catch(e) {
+    console.error(`Error in getUserByEmail for ${email}:`, e);
+    throw e;
+  }
 }
 
 module.exports = usersDB

@@ -4,11 +4,16 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
+// Remove csurf dependency
+// const csrf = require('csurf')
 
+const { initializeDatabase } = require('./db-init')
 const userDB = require('./users-database')
 const hotelDB = require('./hotels-database')
 const roomDB = require('./room-database')
 const reservationDB = require('./reservation-database')
+const { query } = require('./db-config');
+const messagesDB = require('./messages-database');
 
 const initializePassport = require('./passport-config')
 
@@ -19,8 +24,18 @@ initializePassport(
 	email => userDB.getUserByEmail(email)
 )
 
+// Initialize database before setting up routes
+initializeDatabase()
+  .then(() => {
+    console.log('Database initialized successfully');
+  })
+  .catch(err => {
+    console.error('Database initialization failed:', err);
+  });
+
 app.use(express.static(__dirname + '/public'))
 app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
 app.use(flash())
 app.use(session({
 	secret: 'secret',
@@ -30,6 +45,32 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(methodOverride('_method'))
+
+// REMOVE ALL CSRF MIDDLEWARE
+// const { csrfMiddleware } = require('./utils/csrf-utils');
+// app.use(csrfMiddleware);
+
+// REMOVE CSRF TOKEN PASSING TO VIEWS
+// app.use((req, res, next) => {
+//   // Store original render function
+//   const originalRender = res.render;
+//   
+//   // Override render to include csrfToken in all views
+//   res.render = function(view, options, callback) {
+//     // Ensure options is an object
+//     options = options || {};
+//     
+//     // Add csrfToken to options if not already present
+//     if (!options.csrfToken && res.locals.csrfToken) {
+//       options.csrfToken = res.locals.csrfToken;
+//     }
+//     
+//     // Call the original render with updated options
+//     return originalRender.call(this, view, options, callback);
+//   };
+//   
+//   next();
+// });
 
 app.engine('html', require('ejs').renderFile)
 app.set('view engine', 'html')
@@ -96,7 +137,7 @@ app.get('/hotelsdb', async function (req, res) {
 })
 
 app.get('/hotelpage', function (req, res) {
-	res.render('hotelpage')
+  res.render('hotelpage', { hotel: { id: req.query.id, hotelName: req.query.hotelName } });
 })
 
 app.get('/roomsdb', async function (req, res) {
@@ -195,6 +236,117 @@ app.get('/rows', async function (req, res) {
 	res.json(await hotelDB.all())
 })
 
+// Add new route for account page
+app.get('/account', checkAuthenticated, async function (req, res) {
+  try {
+    const user = await userDB.getUserByEmail(req.session.passport.user);
+    let hotels = await hotelDB.all();
+    hotels = hotels.filter(h => h.owner == user.id);
+    let reservations = [];
+    if (hotels.length > 0) {
+      // Pentru hotel owner, preia rezervările pentru proprietăți
+      reservations = await reservationDB.getByOwner(user.id);
+    } else {
+      // Pentru utilizatorii non-hotel owner
+      reservations = await reservationDB.getByUser(user.id);
+    }
+    res.render('account', { user, hotels, reservations, favorites: [] });
+  } catch (e) {
+    console.error("Error loading account page:", e);
+    res.redirect('/');
+  }
+});
+
+// New route to cancel a reservation
+app.post('/cancelReservation', checkAuthenticated, async (req, res) => {
+	const reservationId = req.body.reservationId;
+	try {
+		await reservationDB.deleteReservation(reservationId);
+		res.redirect('/account');
+	} catch (error) {
+		console.error("Cancellation error:", error);
+		res.redirect('/account');
+	}
+});
+
+// New route to update password
+app.post('/updatePassword', checkAuthenticated, async (req, res) => {
+	const { newPassword, confirmPassword } = req.body;
+	if(newPassword !== confirmPassword){
+		req.flash('error', 'Passwords do not match.');
+		return res.redirect('/account');
+	}
+	try {
+		const user = await userDB.getUserByEmail(req.session.passport.user);
+		const hashedPassword = await bcrypt.hash(newPassword, 10);
+		await query('UPDATE user SET password = ? WHERE id = ?', [hashedPassword, user.id]);
+		req.flash('success', 'Password updated successfully.');
+		res.redirect('/account');
+	} catch (error) {
+		console.error("Password update error:", error);
+		req.flash('error', 'Error updating password.');
+		res.redirect('/account');
+	}
+});
+
+// Route pentru submit review
+app.post('/submitReview', checkAuthenticated, async (req, res) => {
+  const { hotelId, reviewText } = req.body;
+  try {
+    // Funcție de inserare recenzie (să se adauge în baza de date)
+    await require('./reviews-database').insertReview(req.session.passport.user, hotelId, reviewText);
+    res.redirect('back');
+  } catch (err) {
+    console.error("Error submitting review:", err);
+    res.redirect('back');
+  }
+});
+
+// Actualizare ruta de mesagerie
+app.get('/messages', checkAuthenticated, async (req, res) => {
+  try {
+    const user = await userDB.getUserByEmail(req.session.passport.user);
+    const messages = await messagesDB.getMessagesForUser(user.id);
+    res.render('messages', { user, messages });
+  } catch (err) {
+    console.error("Error loading messages:", err);
+    res.redirect('/');
+  }
+});
+
+// Nouă rută POST pentru trimiterea unui mesaj
+app.post('/messages', checkAuthenticated, async (req, res) => {
+  const { receiverEmail, content } = req.body;
+  
+  if (!receiverEmail || !content) {
+    req.flash('error', 'Email destinatar și conținutul mesajului sunt necesare.');
+    return res.redirect('/messages');
+  }
+  
+  try {
+    const sender = await userDB.getUserByEmail(req.session.passport.user);
+    const receiver = await userDB.getUserByEmail(receiverEmail);
+    if (!receiver) {
+      req.flash('error', 'Utilizatorul destinatar nu există.');
+      return res.redirect('/messages');
+    }
+    await messagesDB.sendMessage(sender.id, receiver.id, content);
+    req.flash('success', 'Mesaj trimis cu succes.');
+    
+    if (req.xhr) {
+      return res.json({ success: true, message: 'Mesaj trimis cu succes.' });
+    }
+    
+    res.redirect('/messages');
+  } catch (err) {
+    console.error("Error sending message:", err);
+    req.flash('error', 'Eroare la trimiterea mesajului.');
+    if (req.xhr) {
+      return res.status(500).json({ error: 'Eroare la trimiterea mesajului.' });
+    }
+    res.redirect('/messages');
+  }
+});
 
 function checkAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) {
@@ -216,6 +368,7 @@ function checkNotAuthenticatedAndLogout(req, res, next) {
 	if (req.isAuthenticated()) {
 		req.logout();
 		return res.redirect('/')
+
 	}
 
 	next()

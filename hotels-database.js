@@ -1,13 +1,4 @@
-const mysql = require('mysql')
-
-const pool = mysql.createPool({
-	connectionLimit: 10,
-	host: "localhost",
-	user: "root",
-	password: "",
-	database: "mjpm",
-	port: "3306"
-})
+const pool = require('./db-config')
 
 let hotelsDB = {}
 
@@ -46,6 +37,5 @@ hotelsDB.insertHotel = (owner, name, location, description, callback) => {
 		return 0
 	})
 }
-
 
 module.exports = hotelsDB
