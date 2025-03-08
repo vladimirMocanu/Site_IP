@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+	<!-- Meta informații și setări pentru responsive design -->
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>MJPM</title>
@@ -10,6 +11,7 @@
 	<meta name="keywords" content="" />
 	<meta name="author" content="" />
 
+	<!-- Meta tag-uri pentru social media -->
 	<meta property="og:title" content="" />
 	<meta property="og:image" content="" />
 	<meta property="og:url" content="" />
@@ -20,11 +22,30 @@
 	<meta name="twitter:url" content="" />
 	<meta name="twitter:card" content="" />
 
+	<!-- Politica de securitate a conținutului -->
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
+	<style>
+		/* Stilizare pentru fundalul paginii de signup */
+		body {
+			background: url('images/signup-bg.jpg') no-repeat center center fixed;
+			background-size: cover;
+		}
+
+		/* Stilizare pentru containerul card-ului de signup */
+		.signup-card {
+			margin-top: 50px;
+			max-width: 450px;
+			background-color: rgba(255, 255, 255, 0.95);
+			padding: 30px;
+			border-radius: 8px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+		}
+	</style>
+
+	<!-- Linkuri CSS externe și locale -->
 	<link rel="stylesheet" type="text/css" href="Login_SignUP_Source/vendor/bootstrap/css/bootstrap.min.css" />
-	<link rel="stylesheet" type="text/css"
-		href="Login_SignUP_Source/fonts/font-awesome-4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" type="text/css"
-		href="Login_SignUP_Source/fonts/Linearicons-Free-v1.0.0/icon-font.min.css" />
+	<link rel="stylesheet" type="text/css" href="Login_SignUP_Source/fonts/font-awesome-4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" type="text/css" href="Login_SignUP_Source/fonts/Linearicons-Free-v1.0.0/icon-font.min.css" />
 	<link rel="stylesheet" type="text/css" href="Login_SignUP_Source/vendor/animate/animate.css" />
 	<link rel="stylesheet" type="text/css" href="Login_SignUP_Source/vendor/css-hamburgers/hamburgers.min.css" />
 	<link rel="stylesheet" type="text/css" href="Login_SignUP_Source/vendor/animsition/css/animsition.min.css" />
@@ -44,9 +65,11 @@
 	<link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
 	<link rel="stylesheet" href="css/style.css">
 
+	<!-- Scripturi JS externe pentru funcționalități și animații -->
 	<script src="js/modernizr-2.6.2.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script>
+		// Încărcare dinamică: header, subscribe și footer
 		$(document).ready(function () {
 			$("#header").load("/header");
 			$("#subscribe").load("/subscribe");
@@ -56,80 +79,94 @@
 </head>
 
 <body>
+	<!-- Added comment: Signup page -->
 	<div class="colorlib-loader"></div>
 
 	<div id="header"></div>
+	<!-- Container principal pentru formularul de signup -->
 	<div class="limiter">
-		<div class="container-login100">
-			<div class="wrap-login100 p-t-50 p-b-10">
-				<form class="login100-form validate-form" action="" method="POST">
-					<span class="login100-form-title p-b-40">
-						Sign Up
-					</span>
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-12 signup-card">
+					<div class="container-login100">
+						<div class="wrap-login100 p-t-50 p-b-10">
+							<!-- Formularul de înregistrare -->
+							<form class="login100-form validate-form" action="" method="POST">
+								<span class="login100-form-title p-b-40">
+									Sign Up
+								</span>
 
-					<div>
-						<a href="#" class="btn-login-with bg1 m-b-10">
-							<i class="fa fa-facebook-official"></i>
-							Sign Up with Facebook
-						</a>
+								<!-- Opțiuni de înregistrare prin rețele sociale -->
+								<div>
+									<a href="#" class="btn-login-with bg1 m-b-10">
+										<i class="fa fa-facebook-official"></i>
+										Sign Up with Facebook
+									</a>
 
-						<a href="#" class="btn-login-with bg2">
-							<i class="fa fa-twitter"></i>
-							Sign Up with Twitter
-						</a>
-					</div>
+									<a href="#" class="btn-login-with bg2">
+										<i class="fa fa-twitter"></i>
+										Sign Up with Twitter
+									</a>
+								</div>
 
-					<div class="text-center p-t-35 p-b-30">
-						<span class="txt1">
-							Or with email
-						</span>
-					</div>
-					<!-- email + validate -->
+								<div class="text-center p-t-35 p-b-30">
+									<span class="txt1">
+										Or with email
+									</span>
+								</div>
 
-					<div class="wrap-input100 validate-input m-b-16"
-						data-validate="Please enter email: ex@abc.xyz">
-						<input class="input100" type="text" id="email" name="email" placeholder="Email" />
-						<!-- <span class="focus-input100"></span> -->
+								<!-- Câmpuri pentru introducerea datelor: email, parolă, confirmare parolă -->
+								<div class="wrap-input100 validate-input m-b-16"
+									data-validate="Please enter email: ex@abc.xyz">
+									<input class="input100" type="text" id="email" name="email" placeholder="Email" />
+								</div>
+
+								<div class="wrap-input100 validate-input m-b-20"
+									data-validate="Please enter password">
+									<span class="btn-show-pass">
+										<i class="fa fa fa-eye"></i>
+									</span>
+									<input class="input100" type="password" id="pass" name="pass"
+										placeholder="Password" />
+									<span class="focus-input100"></span>
+								</div>
+
+								<div class="wrap-input100 validate-input m-b-20"
+									data-validate="Please enter password">
+									<span class="btn-show-pass">
+										<i class="fa fa fa-eye"></i>
+									</span>
+									<input class="input100" type="password" id="confpass" name="confpass"
+										placeholder="Confirm password" />
+									<span class="focus-input100"></span>
+								</div>
+
+								<!-- Token CSRF pentru securizare formular -->
+								<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+								<div class="container-login100-form-btn">
+									<button class="login100-form-btn">
+										Sign Up
+									</button>
+								</div>
+
+								<!-- Legătură către pagina de login pentru utilizatorii existente -->
+								<div class="flex-col-c p-t-60">
+									<span class="txt2 p-b-10">
+										You have an account?
+									</span>
+									<button onclick="document.location = '/login'">Login</button>
+								</div>
+							</form>
+						</div>
 					</div>
-					<!-- Password + validate -->
-					<div class="wrap-input100 validate-input m-b-20"
-						data-validate="Please enter password">
-						<span class="btn-show-pass">
-							<i class="fa fa fa-eye"></i>
-						</span>
-						<input class="input100" type="password" id="pass" name="pass"
-							placeholder="Password" />
-						<span class="focus-input100"></span>
-					</div>
-					<!-- Confirm password +validate + password match -->
-					<div class="wrap-input100 validate-input m-b-20"
-						data-validate="Please enter password">
-						<span class="btn-show-pass">
-							<i class="fa fa fa-eye"></i>
-						</span>
-						<input class="input100" type="password" id="confpass" name="confpass"
-							placeholder="Confirm password" />
-						<span class="focus-input100"></span>
-					</div>
-					<!-- Sign up button -->
-					<div class="container-login100-form-btn">
-						<button class="login100-form-btn">
-							Sign Up
-						</button>
-					</div>
-					<!-- Back to login if you have an account -->
-					<div class="flex-col-c p-t-60">
-						<span class="txt2 p-b-10">
-							You have an account?
-						</span>
-						<button onclick="document.location = '/login'">Login</button>
-					</div>
-				</form>
+				</div>
 			</div>
 		</div>
 	</div>
 	<div id="footer"></div>
 
+	<!-- Scripturi JS suplimentare pentru funcționalități -->
 	<script src="Login_SignUP_Source/vendor/jquery/jquery-3.2.1.min.js"></script>
 	<script src="Login_SignUP_Source/vendor/animsition/js/animsition.min.js"></script>
 	<script src="Login_SignUP_Source/vendor/bootstrap/js/popper.js"></script>
@@ -139,17 +176,6 @@
 	<script src="Login_SignUP_Source/vendor/daterangepicker/daterangepicker.js"></script>
 	<script src="Login_SignUP_Source/vendor/countdowntime/countdowntime.js"></script>
 	<script src="Login_SignUP_Source/js/main.js"></script>
-	<script src="js/jquery.min.js"></script>
-	<script src="js/jquery.easing.1.3.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/jquery.waypoints.min.js"></script>
-	<script src="js/jquery.flexslider-min.js"></script>
-	<script src="js/owl.carousel.min.js"></script>
-	<script src="js/jquery.magnific-popup.min.js"></script>
-	<script src="js/magnific-popup-options.js"></script>
-	<script src="js/bootstrap-datepicker.js"></script>
-	<script src="js/jquery.stellar.min.js"></script>
-	<script src="js/main.js"></script>
 </body>
 
 </html>

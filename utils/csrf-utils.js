@@ -1,78 +1,37 @@
 /**
  * CSRF Protection Utilities
- * Provides centralized functions for CSRF token generation and validation
+ * Provide centralized functions for CSRF token generation and validation.
  */
 const crypto = require('crypto');
 
-// Generate a cryptographically secure token
-function generateToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
+// Generează un token criptografic
+const generateToken = () => crypto.randomBytes(32).toString('hex');
 
-// Validate a token against the session token
-function validateToken(req) {
+// Validează token-ul CSRF din cerere comparând token-ul din sesiune cu cel oferit
+const validateToken = req => {
   const sessionToken = req.session.csrfToken;
-  const bodyToken = req.body?._csrf;
-  const headerToken = req.headers['x-csrf-token'];
-  
-  // Routes to skip CSRF validation (add routes here for testing)
+  const providedToken = req.body?._csrf || req.headers['x-csrf-token'];
   const skipRoutes = ['/hotelsdb', '/login', '/signup'];
-  
-  // Skip validation for specific routes
-  if (skipRoutes.includes(req.path)) {
-    console.log(`Skipping CSRF validation for exempt route: ${req.path}`);
-    return true;
-  }
-  
-  // No session token is a configuration issue
-  if (!sessionToken) {
-    console.error('CSRF validation failed: No session token found');
-    return false;
-  }
-  
-  // Compare tokens
-  const providedToken = bodyToken || headerToken;
-  const isValid = sessionToken === providedToken;
-  
-  if (!isValid) {
-    console.error('CSRF token mismatch:', {
-      sessionToken: sessionToken,
-      providedToken: providedToken,
-      path: req.path,
-      method: req.method
-    });
-  }
-  
-  return isValid;
-}
+  if (skipRoutes.includes(req.path)) return true;
+  return sessionToken ? sessionToken === providedToken : false;
+};
 
-// Middleware for CSRF protection
-function csrfMiddleware(req, res, next) {
-  // For GET requests, generate a new token
+// Middleware pentru protecție CSRF pentru toate cererile
+const csrfMiddleware = (req, res, next) => {
   if (req.method === 'GET') {
+    // Pentru GET se generează un token nou și se atașează la sesiune
     const token = generateToken();
     req.session.csrfToken = token;
     res.locals.csrfToken = token;
-    console.log(`Generated CSRF token for ${req.path}`);
-  }
-  
-  // For non-GET requests, validate the token
-  if (req.method !== 'GET') {
+  } else {
+    // Pentru restul metodelor se validează token-ul
     if (!validateToken(req)) {
-      if (req.xhr) {
-        return res.status(403).json({ error: 'Invalid CSRF token. Please refresh the page.' });
-      }
-      
+      if (req.xhr) return res.status(403).json({ error: 'Invalid CSRF token. Please refresh the page.' });
       req.flash('error', 'Form session expired. Please try again.');
       return res.redirect(req.get("Referrer") || "/");
     }
   }
-  
   next();
-}
-
-module.exports = {
-  generateToken,
-  validateToken,
-  csrfMiddleware
 };
+
+module.exports = { generateToken, validateToken, csrfMiddleware };

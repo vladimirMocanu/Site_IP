@@ -1,41 +1,53 @@
-const pool = require('./db-config')
+const { query } = require('./db-config');
 
-let roomsDB = {}
+const roomsDB = {
+  // Creează tabela camerelor
+  createTable: async () => {
+    try {
+      await query(`CREATE TABLE IF NOT EXISTS room(
+        id INT(6) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        hotelId INT(6),
+        name VARCHAR(60),
+        price DECIMAL(10,2),
+        description VARCHAR(300)
+      )`);
+      console.log("Room table created or already exists");
+    } catch (err) {
+      console.error("Error creating room table:", err);
+      throw err;
+    }
+  },
+  // Șterge tabela camerelor
+  deleteTable: async () => {
+    try {
+      await query("DROP TABLE IF EXISTS room");
+    } catch (err) {
+      console.error("Error dropping room table:", err);
+      throw err;
+    }
+  },
+  // Returnează camerele unui hotel specific
+  all: async (hotelId) => {
+    try {
+      return await query('SELECT * FROM room WHERE hotelId = ?', [hotelId]);
+    } catch (err) {
+      console.error("Error getting rooms:", err);
+      throw err;
+    }
+  },
+  // Inserarea unei camere și returnarea ID-ului
+  insertRoom: async (hotelId, name, price, description) => {
+    try {
+      const result = await query(
+        "INSERT INTO room (hotelId, name, price, description) VALUES (?, ?, ?, ?)",
+        [hotelId, name, price, description]
+      );
+      return result.insertId;
+    } catch (err) {
+      console.error("Error inserting room:", err);
+      throw err;
+    }
+  }
+};
 
-roomsDB.createTable = () => {
-	pool.query("CREATE TABLE room(id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, hotel INT(6) UNSIGNED, name VARCHAR(60), price INT(6), description VARCHAR(300))", (err, result) => {
-		if (err) throw err;
-		console.log("Table room created");
-	});
-}
-
-roomsDB.deleteTable = () => {
-	pool.query("DROP TABLE room", function (err, result) {
-		if (err) throw err;
-	});
-}
-
-roomsDB.all = (id) => {
-	return new Promise((resolve, reject) => {
-		pool.query('SELECT * FROM room WHERE hotel = ?', [id], (err, result) => {
-			if (err) {
-				return reject(err)
-			}
-
-			return resolve(result)
-		})
-	})
-}
-
-roomsDB.insertRoom = (hotel, name, price, description) => {
-	pool.query("INSERT INTO room (hotel, name, price, description) VALUES ?", [[[hotel, name, price, description]]], (err, result) => {
-		if (err) {
-			return 1
-		}
-
-		return 0
-	})
-}
-
-
-module.exports = roomsDB
+module.exports = roomsDB;

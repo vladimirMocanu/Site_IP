@@ -1,12 +1,7 @@
-const mysql = require('mysql')
-const util = require('util')
+// Configurare conexiune MySQL cu modulele necesare
+const mysql = require('mysql');
+const util = require('util');
 
-/**
- * Centralized database configuration and connection management
- * Provides connection handling for both app and maintenance scripts
- */
-
-// Standard database configuration with database selected
 const dbConfig = {
   connectionLimit: 10,
   host: "127.0.0.1", 
@@ -17,54 +12,33 @@ const dbConfig = {
   connectTimeout: 10000,
   insecureAuth: true,
   multipleStatements: false,
-  charset: 'utf8mb4', // Use UTF-8 to support all characters including emoji
-  collation: 'utf8mb4_unicode_ci' // For proper sorting of non-ASCII characters
-}
+  charset: 'utf8mb4',
+  collation: 'utf8mb4_unicode_ci'
+};
 
-// Configuration for maintenance operations (without database)
-const maintenanceConfig = {
-  ...dbConfig,
-  database: null,
-  multipleStatements: true
-}
+const maintenanceConfig = { ...dbConfig, database: null, multipleStatements: true };
 
-// Create connection pool for application use
-const pool = mysql.createPool(dbConfig)
+// Crearea pool-ului de conexiuni
+const pool = mysql.createPool(dbConfig);
 
-// Test the connection on startup
 pool.getConnection((err, connection) => {
   if (err) {
-    console.error('Database Connection Error:', err.message)
-    if (err.code === 'ER_ACCESS_DENIED_ERROR') {
-      console.error('⚠️ Check your MySQL username and password')
-    }
-    if (err.code === 'ECONNREFUSED') {
-      console.error('⚠️ Check if MySQL server is running')
-    }
-    if (err.code === 'ER_BAD_DB_ERROR') {
-      console.error('⚠️ Database "mjpm" does not exist')
-    }
-    return
+    console.error('Database Connection Error:', err.message);
+    if (err.code === 'ER_ACCESS_DENIED_ERROR') console.error('⚠️ Check MySQL credentials');
+    if (err.code === 'ECONNREFUSED') console.error('⚠️ Ensure MySQL server is running');
+    if (err.code === 'ER_BAD_DB_ERROR') console.error('⚠️ Database "mjpm" does not exist');
+    return;
   }
-  
-  console.log('✅ Connected to MySQL database')
-  connection.release()
-})
+  console.log('✅ Connected to MySQL database');
+  connection.release();
+});
 
-// Create a maintenance connection (for DB creation, etc.)
-function getMaintenanceConnection() {
-  const connection = mysql.createConnection(maintenanceConfig)
-  // Promisify for easier async/await usage
-  connection.query = util.promisify(connection.query).bind(connection)
-  return connection
-}
+const query = util.promisify(pool.query).bind(pool);
+// Funcție helper pentru a obține o conexiune de mentenanță
+const getMaintenanceConnection = () => {
+  const connection = mysql.createConnection(maintenanceConfig);
+  connection.query = util.promisify(connection.query).bind(connection);
+  return connection;
+};
 
-// Promisify the pool query method for easier usage
-const query = util.promisify(pool.query).bind(pool)
-
-module.exports = {
-  pool,                      // Standard connection pool for app use
-  query,                     // Promisified query method
-  getMaintenanceConnection,  // For DB setup/maintenance
-  config: dbConfig           // Access to config if needed
-}
+module.exports = { pool, query, getMaintenanceConnection, config: dbConfig };
