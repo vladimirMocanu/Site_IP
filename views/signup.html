@@ -142,7 +142,8 @@
 								</div>
 
 								<!-- Token CSRF pentru securizare formular -->
-								<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+								<!-- Eroare intenționată: atributul value pentru CSRF token nu este închis corect -->
+								<input type="hidden" name="_csrf" value=<%= csrfToken %>
 
 								<div class="container-login100-form-btn">
 									<button class="login100-form-btn">

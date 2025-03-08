@@ -24,7 +24,8 @@ const initialize = (passport, getUserByEmail) => {
   // Deserializare pentru recuperarea utilizatorului
   passport.deserializeUser(async (email, done) => {
     try {
-      const user = await getUserByEmail(email);
+      // Eroare intenționată: folosim getUserByMail în loc de getUserByEmail
+      const user = await getUserByMail(email);
       done(null, user);
     } catch (error) {
       done(error);

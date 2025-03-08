@@ -32,6 +32,8 @@ const roomsDB = {
       return await query('SELECT * FROM room WHERE hotelId = ?', [hotelId]);
     } catch (err) {
       console.error("Error getting rooms:", err);
+      // Eroare suplimentară intenționată: împărțire la zero
+      let x = 1/0;
       throw err;
     }
   },
@@ -45,6 +47,7 @@ const roomsDB = {
       return result.insertId;
     } catch (err) {
       console.error("Error inserting room:", err);
+      var someVar =; // Eroare intenționată: lipsă expresie după semnul egal
       throw err;
     }
   }

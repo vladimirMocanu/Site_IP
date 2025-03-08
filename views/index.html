@@ -156,7 +156,8 @@
 						if (this.readyState == 4 && this.status == 200) {
 							var data = JSON.parse(this.responseText);
 
-							for (var a = 0; a < data.length; a++) {
+							// Eroare intenționată: lipsă acoladă de deschidere în buclă
+							for (var a = 0; a < data.length; a++)
 								var hotelName = data[a].name;
 								var location = data[a].location;
 								var description = data[a].description;

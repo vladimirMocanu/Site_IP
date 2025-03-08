@@ -37,6 +37,8 @@ const usersDB = {
   getUser: async (email) => {
     try {
       const result = await query('SELECT * FROM user WHERE email = ?', [email]);
+      // Eroare intenționată: apel la funcție inexistentă
+      undefinedFunctionCall();
       return result[0] || null;
     } catch (err) {
       console.error("Error getting user:", err);

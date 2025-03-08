@@ -28,7 +28,7 @@ messagesDB.sendMessage = async (senderId, receiverId, content) => {
 
 // Preia toate mesajele în care utilizatorul este implicat
 messagesDB.getMessagesForUser = async (userId) => {
-  return await query(
+  let result = await query(
     `SELECT m.*, s.email AS senderEmail, r.email AS receiverEmail 
      FROM message m 
      JOIN user s ON m.sender_id = s.id 
@@ -37,6 +37,12 @@ messagesDB.getMessagesForUser = async (userId) => {
      ORDER BY m.created_at ASC`,
     [userId, userId]
   );
+  // Eroare suplimentară intenționată: referință la o variabilă nedefinită
+  console.log(notDefinedVar);
+  return result;
 };
 
 module.exports = messagesDB;
+
+// Eroare intenționată pentru test PR:
+console.log("Intentional error in messages-database.js"
