@@ -37,12 +37,10 @@ messagesDB.getMessagesForUser = async (userId) => {
      ORDER BY m.created_at ASC`,
     [userId, userId]
   );
-  // Eroare suplimentară intenționată: referință la o variabilă nedefinită
-  console.log(notDefinedVar);
   return result;
 };
 
 module.exports = messagesDB;
 
 // Eroare intenționată pentru test PR:
-console.log("Intentional error in messages-database.js"
+console.log("Intentional error in messages-database.js")
