@@ -8,13 +8,19 @@ A hotel booking platform project for IP course.
 - Node.js (v12+)
 - MySQL Server (v5.7+)
 - npm
+- Docker (optional)
+- Go (optional)
 
 ### Database Setup
 1. Make sure MySQL is running on port 3306
 2. Create a database user with:
    - username: `root`
    - password: `secret`
-   
+3. Alternatively, use Docker to run MySQL:
+   ```
+   docker-compose up -d db
+   ```
+
 ### Installation
 1. Clone the repository
 2. Install dependencies:
@@ -57,6 +63,8 @@ The application will be available at: http://localhost:3000
 - `/scripts` - Database initialization and seeding scripts
 - `/public` - Static assets (CSS, JavaScript, images)
 - `/views` - HTML templates
+- `/docker` - Docker configuration files
+- `/go` - Go scripts
 - Root directory - Server configuration and database modules
 
 ## Development Commands
@@ -65,10 +73,7 @@ The application will be available at: http://localhost:3000
 - `npm run db:init` - Initialize database schema
 - `npm run db:seed` - Populate database with sample data
 - `npm run db:reset` - Reset and reseed database (combines init and seed)
+- `docker-compose up -d db` - Start MySQL database using Docker
 
 ## Authors
 - Mocanu
-- Jercan
-- Posta
-- Marcu
-
