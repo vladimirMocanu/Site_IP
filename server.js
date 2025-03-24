@@ -4,8 +4,6 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
-// Remove csurf dependency
-// const csrf = require('csurf')
 
 const { initializeDatabase } = require('./db-init')
 const userDB = require('./users-database')
@@ -17,6 +15,8 @@ const messagesDB = require('./messages-database');
 
 const initializePassport = require('./passport-config')
 
+const rateLimit = require('express-rate-limit');
+
 const app = express()
 
 initializePassport(
@@ -24,7 +24,6 @@ initializePassport(
 	email => userDB.getUserByEmail(email)
 )
 
-// Initialize database before setting up routes
 initializeDatabase()
   .then(() => {
     console.log('Database initialized successfully');
@@ -32,6 +31,14 @@ initializeDatabase()
   .catch(err => {
     console.error('Database initialization failed:', err);
   });
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000,
+	max: 100,
+	message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+
+app.use(limiter);
 
 app.use(express.static(__dirname + '/public'))
 app.use(express.urlencoded({ extended: false }))
@@ -45,32 +52,6 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(methodOverride('_method'))
-
-// REMOVE ALL CSRF MIDDLEWARE
-// const { csrfMiddleware } = require('./utils/csrf-utils');
-// app.use(csrfMiddleware);
-
-// REMOVE CSRF TOKEN PASSING TO VIEWS
-// app.use((req, res, next) => {
-//   // Store original render function
-//   const originalRender = res.render;
-//   
-//   // Override render to include csrfToken in all views
-//   res.render = function(view, options, callback) {
-//     // Ensure options is an object
-//     options = options || {};
-//     
-//     // Add csrfToken to options if not already present
-//     if (!options.csrfToken && res.locals.csrfToken) {
-//       options.csrfToken = res.locals.csrfToken;
-//     }
-//     
-//     // Call the original render with updated options
-//     return originalRender.call(this, view, options, callback);
-//   };
-//   
-//   next();
-// });
 
 app.engine('html', require('ejs').renderFile)
 app.set('view engine', 'html')
@@ -236,7 +217,6 @@ app.get('/rows', async function (req, res) {
 	res.json(await hotelDB.all())
 })
 
-// Add new route for account page
 app.get('/account', checkAuthenticated, async function (req, res) {
   try {
     const user = await userDB.getUserByEmail(req.session.passport.user);
@@ -244,10 +224,8 @@ app.get('/account', checkAuthenticated, async function (req, res) {
     hotels = hotels.filter(h => h.owner == user.id);
     let reservations = [];
     if (hotels.length > 0) {
-      // Pentru hotel owner, preia rezervările pentru proprietăți
       reservations = await reservationDB.getByOwner(user.id);
     } else {
-      // Pentru utilizatorii non-hotel owner
       reservations = await reservationDB.getByUser(user.id);
     }
     res.render('account', { user, hotels, reservations, favorites: [] });
@@ -257,7 +235,6 @@ app.get('/account', checkAuthenticated, async function (req, res) {
   }
 });
 
-// New route to cancel a reservation
 app.post('/cancelReservation', checkAuthenticated, async (req, res) => {
 	const reservationId = req.body.reservationId;
 	try {
@@ -269,7 +246,6 @@ app.post('/cancelReservation', checkAuthenticated, async (req, res) => {
 	}
 });
 
-// New route to update password
 app.post('/updatePassword', checkAuthenticated, async (req, res) => {
 	const { newPassword, confirmPassword } = req.body;
 	if(newPassword !== confirmPassword){
@@ -289,11 +265,9 @@ app.post('/updatePassword', checkAuthenticated, async (req, res) => {
 	}
 });
 
-// Route pentru submit review
 app.post('/submitReview', checkAuthenticated, async (req, res) => {
   const { hotelId, reviewText } = req.body;
   try {
-    // Funcție de inserare recenzie (să se adauge în baza de date)
     await require('./reviews-database').insertReview(req.session.passport.user, hotelId, reviewText);
     res.redirect('back');
   } catch (err) {
@@ -302,7 +276,6 @@ app.post('/submitReview', checkAuthenticated, async (req, res) => {
   }
 });
 
-// Actualizare ruta de mesagerie
 app.get('/messages', checkAuthenticated, async (req, res) => {
   try {
     const user = await userDB.getUserByEmail(req.session.passport.user);
@@ -314,7 +287,6 @@ app.get('/messages', checkAuthenticated, async (req, res) => {
   }
 });
 
-// Nouă rută POST pentru trimiterea unui mesaj
 app.post('/messages', checkAuthenticated, async (req, res) => {
   const { receiverEmail, content } = req.body;
   
